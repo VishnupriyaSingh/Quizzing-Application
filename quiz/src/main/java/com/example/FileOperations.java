@@ -21,6 +21,7 @@ public class FileOperations {
             }
         } else {
             System.out.println("File already exists!");
+            System.out.println("\n");
         }
     }
 

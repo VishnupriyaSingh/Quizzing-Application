@@ -26,6 +26,14 @@ public class Player {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public double getTotalScore() {
+        return player_quizzes.values().stream().mapToDouble(Double::doubleValue).sum();
+    }    
+
     @Override
     public String toString() {
         return this.playerID + "," + this.name;

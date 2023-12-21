@@ -9,19 +9,56 @@ public class QuizConsole {
     public static HashMap<Integer, Quiz> quizzes = new HashMap<>();
     public static HashMap<Integer, Player> players = new HashMap<>();
     public static HashMap<Integer, Instructor> instructors = new HashMap<>();
+    public static Leaderboard leaderBoard = new Leaderboard();
+    
+
+    // Method to start a quiz
+    public void startQuiz(Quiz quiz) {
+        for (Question question : quiz.getQuestions()) {
+            question.getTimer().start();
+            displayQuestion(question);
+            while (!question.getTimer().isTimeUp()) {
+                // Check for user input or timer expiration
+            }
+            if (question.getTimer().isTimeUp()) {
+                System.out.println("Time's up for this question!");
+                // Move to the next question or end the quiz
+            }
+        }
+    }
+
+    public void createAndStoreQuiz() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter Quiz ID: ");
+        int quizID = sc.nextInt();
+        sc.nextLine();
+
+        Quiz quiz = new Quiz(quizID, sc);
+
+        // Logic to store the quiz in the system
+        quizzes.put(quizID, quiz);
+    }
+
+
+    public void displayQuestion(Question question) {
+        // Display the question and choices
+    }
 
     public static void startQuizConsole(Scanner sc) {
         FileOperations.createFile(INSTRUCTOR_CSV_PATH);
         FileOperations.createFile(PLAYER_CSV_PATH);
         while (true) {
-            System.out.println("Choose your option from below:");
-            System.out.println("[1] Add new quiz.");
-            System.out.println("[2] Play a quiz.");
-            System.out.println("[3] Create new player.");
-            System.out.println("[4] Create new instructor.");
-            System.out.println("[5] View player score.");
-            System.out.println("[6] Manage quiz.");
-            System.out.print("Enter your choice (enter 0 to exit): ");
+            System.out.println("*WELCOME TO QUIZZING PORTAL*");
+            System.out.println("----------------------------");
+            System.out.println("1 | Add new quiz. (Instructor only)");
+            System.out.println("2 | Play a quiz.");
+            System.out.println("3 | Create new player.");
+            System.out.println("4 | Create new instructor.");
+            System.out.println("5 | View player score.");
+            System.out.println("6 | Manage quiz. (Instructor only)");
+            System.out.println("7 | Randomize Quiz Questions. (Instructor only)");
+            System.out.println("8 | View Leaderboard.");
+            System.out.print("Your Choice: ");
             int choice = sc.nextInt();
             sc.nextLine();
 
@@ -74,8 +111,23 @@ public class QuizConsole {
                     }
                     break;
 
+                case 7:
+                randomized(sc);
+                break;
+
+                case 8:
+                System.out.println("* LEADERBOARD *");
+                leaderBoard.displayLeaderboard();
+                for(int i=1;i<=5;i++){
+                    double player_score = players.get(i).getScore(1);
+                    if (player_score != Double.MIN_VALUE) {
+                        System.out.println(i+"."+" Player " + i + " : " + player_score);
+                    }
+                }
+
                 default:
-                    break;
+                break;
+
             }
         }
     }
@@ -112,6 +164,7 @@ public class QuizConsole {
             if (quizzes.containsKey(play_quiz_id)) {
                 Quiz player_quiz = quizzes.get(play_quiz_id);
                 double score = player_quiz.playQuiz(sc);
+
                 players.get(player_id).updateScore(play_quiz_id, score);
                 System.out.println("\nQuiz Completed successfully. Your score is " + score + "%\n");
             } else {
@@ -195,6 +248,25 @@ public class QuizConsole {
             }
         } else {
             throw new InstructorNotFoundException("Instructor not found!\n");
+        }
+    }
+
+    public static void randomized(Scanner sc) {
+        System.out.println("Enter your Instructor ID");
+        int instId = sc.nextInt();
+
+        if (instructors.containsKey(instId)) {
+            System.out.println("Enter the quiz ID you want to randomized");
+            int quizId = sc.nextInt();
+            if (quizzes.containsKey(quizId)) {
+                Quiz quiz = quizzes.get(quizId);
+                quiz.randomizedQues();
+                System.out.println("Questions in quiz " + quizId + " shuffled successfully!\n");
+            } else {
+                System.out.println("Quiz not found!\n");
+            }
+        } else {
+            System.out.println("Instructor not found!\n");
         }
     }
 }

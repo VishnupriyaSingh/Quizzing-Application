@@ -1,12 +1,8 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayInputStream;
-import java.util.HashMap;
 import java.util.Scanner;
-
 import com.example.FileOperations;
 import com.example.InstructorNotFoundException;
 import com.example.PlayerNotFoundException;
@@ -16,18 +12,10 @@ import com.example.QuizNotFoundException;
 
 public class QuizTest {
 
-    // method to reset console before every test
-    @BeforeEach
-    public void resetConsole() {
-        QuizConsole.quizzes = new HashMap<>();
-        QuizConsole.instructors = new HashMap<>();
-        QuizConsole.players = new HashMap<>();
-    }
-
-    // method to verify quiz creation and adding of questions
+    // method to verify quiz creation
     @Test
     public void testQuizAdd() {
-        // creating new instructor then quiz and then adding 1 question
+        // creating new instructor with quiz
         String input = "4\n100\nTestInstructor1\n1\n100\n1\n1\nDemo Question\nA\nB\nC\n1\n0\n";
         ByteArrayInputStream testInputs = new ByteArrayInputStream(input.getBytes());
         Scanner sc = new Scanner(testInputs);
@@ -44,7 +32,7 @@ public class QuizTest {
     // method to verify player creation
     @Test
     public void testPlayerAdd() {
-        String input = "3\n200\nTestPlayer1\n0\n"; // creating new player with id = 200
+        String input = "3\n200\nTestPlayer1\n0\n"; 
         ByteArrayInputStream testInputs = new ByteArrayInputStream(input.getBytes());
         Scanner sc = new Scanner(testInputs);
         int players_before = QuizConsole.players.size();

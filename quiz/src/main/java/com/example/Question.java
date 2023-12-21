@@ -4,6 +4,7 @@ public class Question {
     String question;
     String[] options;
     private int correct_option;
+    private Timer timer;
 
     public Question(String question, String option1, String option2, String option3, int correct_option) {
         this.question = question;
@@ -12,6 +13,14 @@ public class Question {
         options[1] = option2;
         options[2] = option3;
         this.correct_option = correct_option;
+        this.timer = new Timer(5); // Timer initialized with 5 seconds per question
+        
+    }
+
+    
+    // Getter for Timer
+    public Timer getTimer() {
+        return this.timer;
     }
 
     public boolean checkAnswer(int choice) {
