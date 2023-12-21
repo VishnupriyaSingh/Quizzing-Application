@@ -1,5 +1,4 @@
 package com.example;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +13,6 @@ public class Leaderboard {
     }
 
     public void updateLeaderboard(Map<Integer, Player> players, int quizID) {
-        // Extract scores for the given quiz
         List<QuizScore> quizScores = new ArrayList<>();
         for (Map.Entry<Integer, Player> entry : players.entrySet()) {
             int playerID = entry.getKey();
@@ -26,7 +24,6 @@ public class Leaderboard {
             }
         }
 
-        // sort the scores in descending order
         Collections.sort(quizScores, Collections.reverseOrder());
 
         players.clear();
@@ -37,7 +34,6 @@ public class Leaderboard {
     }
 
     public void displayLeaderboard() {
-        System.out.println("\n--- Leaderboard ---");
         for (Player player : players) {
             System.out.println(player.toString());
         }
@@ -58,7 +54,6 @@ public class Leaderboard {
         public int getPlayerID() {
             return playerID;
         }
-
         public String getPlayerName() {
             return playerName;
         }
