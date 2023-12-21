@@ -1,22 +1,23 @@
+import java.io.ByteArrayInputStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.io.ByteArrayInputStream;
-import java.util.Scanner;
-import com.example.FileOperations;
-import com.example.InstructorNotFoundException;
-import com.example.PlayerNotFoundException;
+import com.example.QuestionType;
 import com.example.Quiz;
 import com.example.QuizConsole;
-import com.example.QuizNotFoundException;
+import com.example.QuizDifficulty;
+import java.util.HashMap;
+import java.util.Scanner;
+import com.example.FileOperations;
 
 public class QuizTest {
 
     // method to verify quiz creation
     @Test
     public void testQuizAdd() {
-        // creating new instructor with quiz
-        String input = "4\n100\nTestInstructor1\n1\n100\n1\n1\nDemo Question\nA\nB\nC\n1\n0\n";
+        // creating new instructor, quiz, new question
+        String input = "4\n100\nTestInstructor1\n1\n100\n1\n1\n1\nDemo Question\n1\nA\nB\nC\n1\n10\n0\n";
         ByteArrayInputStream testInputs = new ByteArrayInputStream(input.getBytes());
         Scanner sc = new Scanner(testInputs);
         int quizzes_before = QuizConsole.quizzes.size();
@@ -32,13 +33,13 @@ public class QuizTest {
     // method to verify player creation
     @Test
     public void testPlayerAdd() {
-        String input = "3\n200\nTestPlayer1\n0\n"; 
+        String input = "200\nTestPlayer1\n"; 
         ByteArrayInputStream testInputs = new ByteArrayInputStream(input.getBytes());
         Scanner sc = new Scanner(testInputs);
         int players_before = QuizConsole.players.size();
         int players_before_in_csv = FileOperations.countEntries(QuizConsole.PLAYER_CSV_PATH);
         try {
-            QuizConsole.startQuizConsole(sc);
+            QuizConsole.createPlayer(sc);
         } catch (Exception exception) {
             fail("Unexpected Exception: " + exception.getMessage());
         }
@@ -53,13 +54,13 @@ public class QuizTest {
     // method to verify instructor creation
     @Test
     public void testInstructorAdd() {
-        String input = "4\n103\nTestInstructor4\n0\n"; // creating instructor with id = 103
+        String input = "103\nTestInstructor4\n"; // creating instructor with id = 103
         ByteArrayInputStream testInputs = new ByteArrayInputStream(input.getBytes());
         Scanner sc = new Scanner(testInputs);
         int instructors_before = QuizConsole.instructors.size();
         int instructors_before_in_csv = FileOperations.countEntries(QuizConsole.INSTRUCTOR_CSV_PATH);
         try {
-            QuizConsole.startQuizConsole(sc);
+            QuizConsole.createInstructor(sc);
         } catch (Exception exception) {
             fail("Unexpected exception: " + exception.getMessage());
         }
@@ -74,9 +75,10 @@ public class QuizTest {
     // method to test if player can take quiz and check score
     @Test
     public void testQuizPlay() {
-        // creating new instructor then quiz then adding 2 demo questions (ans 1 and 2)
-        String createQuiz = "4\n101\nTestInstructor2\n1\n101\n1\n2\nDemo Question 1\nA\nB\nC\n1\nDemo Question 2\nA\nB\nC\n2\n0\n";
-        String playQuiz = "1\n1\n"; // playing quiz with giving answers 1 and 1
+        // creating new instructor then quiz then adding 2 demo questions
+        // (answers are 1 and 'demo answer')
+        String createQuiz = "4\n101\nTestInstructor2\n1\n101\n1\n3\n2\nDemo Question 1\n1\nA\nB\nC\n1\n10\nDemo Question 2\n2\nDemo Answer\n10\n0\n";
+        String playQuiz = "1\ndemo answer\n"; // playing quiz with giving answers 1 and 'demo answer'
 
         // creating a quiz
         ByteArrayInputStream testCreateQuiz = new ByteArrayInputStream(createQuiz.getBytes());
@@ -91,8 +93,8 @@ public class QuizTest {
         ByteArrayInputStream testPlayQuiz = new ByteArrayInputStream(playQuiz.getBytes());
         Scanner sc_playQuiz = new Scanner(testPlayQuiz);
         Quiz test_quiz = QuizConsole.quizzes.get(1);
-        double score = test_quiz.playQuiz(sc_playQuiz);
-        assertEquals(50.0, score);
+        double score = test_quiz.playQuiz(sc_playQuiz, 0); // TODO
+        assertEquals(100.0, score);
     }
 
     // method to test multiple quiz addition to console
@@ -100,9 +102,9 @@ public class QuizTest {
     public void testMultipleQuizAdd() {
         // creating three quizzes with ids 1, 2 and 3 after creating instructor
         String[] createQuizzes = {
-                "4\n102\nTestInstructor3\n1\n102\n1\n2\nDemo Question 1\nA\nB\nC\n1\nDemo Question 2\nA\nB\nC\n2\n0\n",
-                "1\n102\n2\n2\nDemo Question 1\nA\nB\nC\n1\nDemo Question 2\nA\nB\nC\n2\n0\n",
-                "1\n102\n3\n2\nDemo Question 1\nA\nB\nC\n1\nDemo Question 2\nA\nB\nC\n2\n0\n" };
+                "4\n102\nTestInstructor3\n1\n102\n1\n2\n2\nDemo Question 1\n1\nA\nB\nC\n1\n10\nDemo Question 2\n1\nA\nB\nC\n2\n10\n0\n",
+                "1\n102\n2\n3\n2\nDemo Question 1\n1\nA\nB\nC\n1\n10\nDemo Question 2\n1\nA\nB\nC\n2\n10\n0\n",
+                "1\n102\n3\n1\n2\nDemo Question 1\n1\nA\nB\nC\n1\n10\nDemo Question 2\n1\nA\nB\nC\n2\n10\n0\n" };
 
         int quizzes_before = QuizConsole.quizzes.size();
         for (String createQuiz : createQuizzes) {
@@ -162,5 +164,38 @@ public class QuizTest {
         } catch (Exception exception) {
             assertEquals(QuizNotFoundException.class, exception.getClass());
         }
+    }
+
+    // method to test for correct quiz difficulty
+    @Test
+    public void testDifficulty() {
+        // creating a new quiz with difficulty level medium
+        String input = "4\n104\nTestInstructor5\n1\n104\n1\n2\n2\nDemo Question 1\n1\nA\nB\nC\n1\n10\nDemo Question 2\n2\nDemo Answer\n10\n0\n";
+        Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
+        try {
+            QuizConsole.startQuizConsole(sc);
+        } catch (Exception exception) {
+            fail("Unexpected exception: " + exception.getMessage());
+        }
+        assertEquals(QuizDifficulty.MEDIUM, QuizConsole.quizzes.get(1).geDifficulty());
+    }
+
+    // method for currectly checking question type
+    @Test
+    public void testQuestionType() {
+        String input = "4\n104\nTestInstructor5\n1\n104\n1\n2\n2\nDemo Question 1\n1\nA\nB\nC\n1\n10\nDemo Question 2\n2\nDemo Answer\n10\n0\n";
+        Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
+        QuestionType question1QuestionType = null;
+        QuestionType question2QuestionType = null;
+        try {
+            QuizConsole.startQuizConsole(sc);
+            question1QuestionType = QuizConsole.quizzes.get(1).getQuestions().get(0).getQuestionType();
+            question2QuestionType = QuizConsole.quizzes.get(1).getQuestions().get(1).getQuestionType();
+        } catch (Exception exception) {
+            fail("Unexpected exception: " + exception.getMessage());
+        }
+
+        assertEquals(QuestionType.MCQ, question1QuestionType);
+        assertEquals(QuestionType.OPEN_ENDED, question2QuestionType);
     }
 }

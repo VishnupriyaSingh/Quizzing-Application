@@ -22,6 +22,7 @@ public class QuizConsole {
             }
             if (question.getTimer().isTimeUp()) {
                 System.out.println("Time's up for this question!");
+                break;
                 // Move to the next question or end the quiz
             }
         }

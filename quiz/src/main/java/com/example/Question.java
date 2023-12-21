@@ -1,4 +1,5 @@
 package com.example;
+import com.example.Timer;
 
 public class Question {
     String question;
@@ -13,7 +14,7 @@ public class Question {
         options[1] = option2;
         options[2] = option3;
         this.correct_option = correct_option;
-        this.timer = new Timer(5); // Timer initialized with 5 seconds per question
+        this.timer = new Timer(10); // Timer initialized with 10 seconds per question
         
     }
 

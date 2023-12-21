@@ -79,26 +79,45 @@ public class Quiz {
 
     public double playQuiz(Scanner sc) {
         int[] choices = new int[this.questions.size()];
+        
         for (int i = 0; i < this.questions.size(); i++) {
             Question question=questions.get(i);
             question.getTimer().start();
             //displayQuestion(question);
             System.out.println(question);
             System.out.print("Enter your answer (1/2/3): ");
+
             while (!question.getTimer().isTimeUp()) {
                 // Check for user input or timer expiration
+                if(sc.hasNext()){
                 if (sc.hasNextInt()) {
                     choices[i] = sc.nextInt();
                     sc.nextLine();
                     break; // Break the loop once an input is received
+                } else{
+                    sc.next();
+                }
+                }
+
+                try {
+                    Thread.sleep(200); // Short delay to avoid excessive CPU usage
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
             }
-            if (question.getTimer().isTimeUp()) {
-                System.out.println("Time's up for this question!");
-                // Move to the next question or end the quiz
-            }
-            
-            System.out.println();
+            //     if (question.getTimer().isTimeUp()) {
+            //         System.out.println("Time's up!");
+            //         break;
+            //         // Move to the next question or end the quiz
+            //     }
+            // }
+        if (question.getTimer().isTimeUp() && choices[i] == 0) {
+            System.out.println("Time's up!");
+        }
+
+        // Reset the timer for the next question
+        question.getTimer().reset();
+        System.out.println();
         }
         return scoreQuiz(choices);
     }
